@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+﻿import { useCallback, useEffect, useRef, useState } from "react";
 import { Simulation, SimulationScenario } from "../engine/simulation";
 import { DebugFrame, GameEvent, MatchState, Player, TeamState } from "../engine/types";
 import { TEAMS } from "../engine/teams";
 import { computeCam, drawPitch, pitchToCanvas } from "../rendering/pitch-renderer";
 import { drawPlayers } from "../rendering/player-renderer";
 import { drawBall } from "../rendering/ball-renderer";
+import loadingScreenImage from "/images/LoadingScreen.png";
 
 type DisplayState = {
   score: [number, number];
@@ -550,7 +551,7 @@ export default function MatchSimulator() {
   const lastEvent = ds?.recentEvents[0];
   const bigEvent = eventLabel(lastEvent);
   const iqMetrics = debugFrame?.metrics ?? {};
-  const introImage = "/opengraph.jpg";
+  const introImage = loadingScreenImage;
   const starterStageClass = introVisible
     ? introFading
       ? "opacity-0 scale-[1.01]"
@@ -789,7 +790,7 @@ export default function MatchSimulator() {
             </button>
             <button
               data-testid="btn-new-match"
-              onClick={() => { setIsRunning(false); setPaused(false); setDebugFrame(null); setDebugJson(""); setIntroVisible(true); setIntroFading(false); }}
+              onClick={() => { setIsRunning(false); setPaused(false); setDebugFrame(null); setDebugJson(""); setIntroVisible(false); setIntroFading(false); }}
               className="rounded-full px-4 py-2 text-sm text-white/70 hover:bg-white/10"
             >
               Return to Select
@@ -820,7 +821,7 @@ export default function MatchSimulator() {
                 <div className="my-3 text-5xl font-semibold text-white">{ds.score[0]}:{ds.score[1]}</div>
                 <button
                   data-testid="btn-new-match-fulltime"
-                  onClick={() => { setIsRunning(false); setPaused(false); setIntroVisible(true); setIntroFading(false); }}
+                  onClick={() => { setIsRunning(false); setPaused(false); setIntroVisible(false); setIntroFading(false); }}
                   className="mt-2 rounded-full bg-white px-5 py-2 text-sm font-semibold uppercase text-[#080b14]"
                 >
                   Return to Select
