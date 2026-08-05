@@ -554,9 +554,9 @@ export default function MatchSimulator() {
   const introImage = loadingScreenImage;
   const starterStageClass = introVisible
     ? introFading
-      ? "opacity-0 scale-[1.01]"
+      ? "opacity-0 scale-[1.01] pointer-events-none"
       : "opacity-100 scale-100"
-    : "opacity-100 scale-100";
+    : "hidden";
   const setupStageClass = introVisible
     ? introFading
       ? "opacity-100 blur-0 translate-y-0"
@@ -571,13 +571,15 @@ export default function MatchSimulator() {
 
       {!isRunning && (
         <div className="relative z-10 h-full">
-          <div className={`absolute inset-0 z-20 overflow-hidden bg-black transition-all duration-500 ease-out ${starterStageClass}`}>
-            <img src={introImage} alt="TF 27 starter art" className="h-full w-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-tr from-black/45 via-black/10 to-transparent" />
-            <div className="absolute bottom-6 left-6 rounded-full border border-white/10 bg-black/35 px-3 py-1 text-[10px] uppercase tracking-[0.28em] text-white/75 backdrop-blur-sm sm:bottom-8 sm:left-8">
-              Loading match day
+          {introVisible && (
+            <div className={`absolute inset-0 z-20 overflow-hidden bg-black transition-all duration-500 ease-out ${starterStageClass}`}>
+              <img src={introImage} alt="TF 27 starter art" className="h-full w-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-tr from-black/45 via-black/10 to-transparent" />
+              <div className="absolute bottom-6 left-6 rounded-full border border-white/10 bg-black/35 px-3 py-1 text-[10px] uppercase tracking-[0.28em] text-white/75 backdrop-blur-sm sm:bottom-8 sm:left-8">
+                Loading match day
+              </div>
             </div>
-          </div>
+          )}
 
           <div className={`relative z-10 flex h-full items-center justify-center px-4 py-6 transition-all duration-500 ease-out sm:px-6 ${setupStageClass}`}>
             <div className="grid w-full max-w-6xl overflow-hidden rounded-3xl border border-white/10 bg-[#111827]/92 shadow-2xl lg:grid-cols-[1.12fr_0.88fr]">
