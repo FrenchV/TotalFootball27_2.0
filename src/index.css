@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&family=Bebas+Neue&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
@@ -117,7 +117,7 @@
   --app-font-sans: 'Inter', sans-serif;
   --app-font-serif: Georgia, serif;
   --app-font-mono: Menlo, monospace;
-  --app-font-display: 'Bebas Neue', sans-serif;
+  --app-font-display: 'Inter', sans-serif;
   --radius: 0.375rem;
 
   --shadow-2xs: 0px 1px 2px 0px rgba(0,0,0,0.4);
@@ -244,7 +244,7 @@
   .border.hover-elevate-2:not(.no-hover-interaction-elevate)::after,
   .border.active-elevate-2:not(.no-active-interaction-elevate)::after { inset: -1px; }
 
-  .font-broadcast { font-family: 'Rajdhani', sans-serif; }
+  .font-broadcast { font-family: var(--app-font-sans); letter-spacing: 0.02em; }
   .font-display { font-family: var(--app-font-display); }
 
   .tf-starter-shell {

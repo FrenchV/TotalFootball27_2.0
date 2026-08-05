@@ -350,6 +350,7 @@ export default function MatchSimulator() {
   const [isRunning, setIsRunning] = useState(false);
   const [paused, setPaused] = useState(false);
   const [introVisible, setIntroVisible] = useState(true);
+  const [introFading, setIntroFading] = useState(false);
   const [debugMode, setDebugMode] = useState(false);
   const [seedText, setSeedText] = useState("25");
   const [scenario, setScenario] = useState<SimulationScenario>("default");
@@ -382,15 +383,22 @@ export default function MatchSimulator() {
     const description = document.querySelector('meta[name="description"]');
     description?.setAttribute(
       "content",
-      "Total Football 27 (TF 27) is a cinematic football match simulator with a FIFA-inspired starter screen and broadcast presentation.",
+      "Total Football 27 (TF 27) is a football match simulator with a simple starter screen and a clean broadcast-style presentation.",
     );
   }, []);
 
   useEffect(() => {
-    if (!introVisible) return;
-    const timer = window.setTimeout(() => setIntroVisible(false), 2200);
-    return () => window.clearTimeout(timer);
-  }, [introVisible]);
+    if (isRunning || !introVisible) return;
+
+    setIntroFading(false);
+    const fadeTimer = window.setTimeout(() => setIntroFading(true), 5000);
+    const hideTimer = window.setTimeout(() => setIntroVisible(false), 5560);
+
+    return () => {
+      window.clearTimeout(fadeTimer);
+      window.clearTimeout(hideTimer);
+    };
+  }, [introVisible, isRunning]);
 
   const startMatch = useCallback((aId: string, bId: string) => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
@@ -542,182 +550,176 @@ export default function MatchSimulator() {
   const lastEvent = ds?.recentEvents[0];
   const bigEvent = eventLabel(lastEvent);
   const iqMetrics = debugFrame?.metrics ?? {};
+  const introImage = "/opengraph.jpg";
+  const starterStageClass = introVisible
+    ? introFading
+      ? "opacity-0 scale-[1.01]"
+      : "opacity-100 scale-100"
+    : "opacity-100 scale-100";
+  const setupStageClass = introVisible
+    ? introFading
+      ? "opacity-100 blur-0 translate-y-0"
+      : "opacity-0 blur-sm translate-y-2 pointer-events-none"
+    : "opacity-100 blur-0 translate-y-0";
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-[#05060b] text-white tf-starter-shell">
-      <div className="absolute inset-0 tf-starter-grid opacity-40" />
-      <div className="absolute left-[-6rem] top-20 h-72 w-72 rounded-full bg-amber-300/10 blur-3xl tf-drift-slow" />
-      <div className="absolute right-[-5rem] top-16 h-[28rem] w-[28rem] rounded-full bg-white/8 blur-3xl tf-drift-fast" />
+    <div className="relative h-screen w-screen overflow-hidden bg-[#0b0f16] text-white">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.07),transparent_38%),linear-gradient(180deg,#101621_0%,#0b0f16_52%,#070a0f_100%)]" />
       <canvas ref={canvasRef} className="absolute inset-0 transition-opacity duration-500" style={{ opacity: isRunning ? 1 : 0 }} />
       <pre ref={debugPreRef} data-testid="tactical-debug-json" data-ready={debugJson ? "true" : "false"} className="hidden">{debugJson}</pre>
 
       {!isRunning && (
-        <div className="absolute inset-0 z-20 overflow-hidden">
-          <div className={`absolute inset-0 z-30 tf-overlay ${introVisible ? 'visible' : 'hidden'}`} onClick={() => setIntroVisible(false)}>
-            <div className="tf-hero">
-              <div className="font-display tf-hero-title text-[clamp(4rem,13vw,9rem)] tf-logo-glow">TF 27</div>
-              <div className="tf-hero-sub">Total Football 27</div>
-              <div className="mt-4">
-                <div className="tf-btn" style={{width: 260, margin: '0 auto'}}>Broadcast intro sequence</div>
-              </div>
+        <div className="relative z-10 h-full">
+          <div className={`absolute inset-0 z-20 overflow-hidden bg-black transition-all duration-500 ease-out ${starterStageClass}`}>
+            <img src={introImage} alt="TF 27 starter art" className="h-full w-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-black/45 via-black/10 to-transparent" />
+            <div className="absolute bottom-6 left-6 rounded-full border border-white/10 bg-black/35 px-3 py-1 text-[10px] uppercase tracking-[0.28em] text-white/75 backdrop-blur-sm sm:bottom-8 sm:left-8">
+              Loading match day
             </div>
           </div>
 
-          <div className={`relative z-10 flex h-full flex-col px-4 py-4 ${introVisible ? 'opacity-0' : 'opacity-100'}`}>
-            <header className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full tf-panel">
-                  <span className="font-display text-lg">TF</span>
-                </div>
-                <div>
-                  <div className="text-[10px] uppercase text-amber-100/75">Total Football 27</div>
-                  <div className="mt-0.5 text-xs uppercase text-white/42">TF 27 broadcast starter</div>
+          <div className={`relative z-10 flex h-full items-center justify-center px-4 py-6 transition-all duration-500 ease-out sm:px-6 ${setupStageClass}`}>
+            <div className="grid w-full max-w-6xl overflow-hidden rounded-3xl border border-white/10 bg-[#111827]/92 shadow-2xl lg:grid-cols-[1.12fr_0.88fr]">
+              <div className="relative min-h-[260px] bg-black lg:min-h-[640px]">
+                <img src={introImage} alt="TF 27 starter art" className="h-full w-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-black/68 via-black/18 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6 lg:p-8">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-black/35 px-3 py-1 text-[10px] uppercase tracking-[0.28em] text-white/70 backdrop-blur-sm">
+                    Total Football 27
+                  </div>
+                  <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-5xl">
+                    Tactical Simulation
+                  </h1>
+                  <p className="mt-2 max-w-xl text-sm leading-6 text-white/72 sm:text-base">
+                    Pick a fixture, choose a scenario, and start the match.
+                  </p>
                 </div>
               </div>
-              <div className="hidden items-center gap-2 rounded-full tf-panel subtle md:flex">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
-                Live match staging
+
+              <div className="flex flex-col gap-5 p-5 sm:p-6 lg:p-8">
+              <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.3em] text-white/42">
+                <span>Starting page</span>
+                <span>Simple setup</span>
               </div>
-            </header>
 
-            <main className="grid flex-1 items-center gap-8 pb-2 pt-8 lg:grid-cols-[1.08fr_0.92fr]">
-              <section className="max-w-3xl">
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/5 px-3 py-1 text-[10px] uppercase tracking-[0.45em] text-amber-100/85 tf-reveal">
-                  <span className="h-1.5 w-1.5 rounded-full bg-amber-300 shadow-[0_0_12px_rgba(251,191,36,0.9)]" />
-                  Matchday broadcast
-                </div>
-                <h1 className="mt-4 max-w-xl font-display text-[clamp(4.1rem,11vw,8.8rem)] leading-[0.86] tracking-[0.12em] text-white tf-reveal-delay">
-                  TOTAL FOOTBALL <span className="text-amber-300">27</span>
-                </h1>
-                <p className="mt-5 max-w-2xl text-sm leading-7 text-white/70 md:text-base tf-reveal-delay">
-                  A cinematic football sandbox with FIFA-style presentation, dramatic pre-match staging, and fast setup for instant kickoff.
-                </p>
-
-                <div className="mt-6 grid max-w-2xl gap-3 sm:grid-cols-3 tf-reveal-delay">
-                  {[
-                    { label: "Cinematic intro", value: "Animated reveal" },
-                    { label: "Broadcast feel", value: "Matchday package" },
-                    { label: "Quick setup", value: "Select and start" },
-                  ].map((item) => (
-                    <div key={item.label} className="rounded-[20px] border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-sm transition-transform duration-300 hover:-translate-y-1 hover:bg-white/7">
-                      <div className="text-[10px] uppercase tracking-[0.4em] text-white/42">{item.label}</div>
-                      <div className="mt-2 font-broadcast text-base uppercase tracking-[0.25em] text-white">{item.value}</div>
-                    </div>
-                  ))}
-                </div>
-
-                <p className="mt-8 max-w-md text-sm text-white/70 tf-reveal-delay">Pick your teams, choose a scenario, and start the match.</p>
-              </section>
-
-              <aside className="tf-panel">
-                <div className="tf-panel-inner">
-                  <div className="flex items-center justify-between text-[10px] uppercase text-white/45">
-                    <span>Match preview</span>
-                    <span>Starter select</span>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
+                  <div>
+                    <div className="text-[11px] uppercase tracking-[0.22em] text-white/40">Home</div>
+                    <div className="mt-1 text-lg font-medium text-white">{selectedTeamA.name}</div>
+                    <div className="text-xs text-white/45">{selectedTeamA.formation}</div>
                   </div>
-
-                  <div className="mt-5 tf-panel">
-                    <div className="flex items-center justify-between gap-6">
-                      <div className="tf-team text-left">
-                        <div className="badge" style={{ background: teamTone(selectedTeamA.color) }}>{teamMark(selectedTeamA.name)}</div>
-                        <div className="font-broadcast text-lg uppercase text-white">{selectedTeamA.name}</div>
-                        <div className="text-[10px] text-white/44">{selectedTeamA.formation}</div>
-                      </div>
-
-                      <div className="text-center">
-                        <div className="font-display text-4xl text-amber-300">VS</div>
-                        <div className="mt-1 text-[9px] uppercase text-white/42">Fixture</div>
-                      </div>
-
-                      <div className="tf-team text-right">
-                        <div className="badge" style={{ background: teamTone(selectedTeamB.color) }}>{teamMark(selectedTeamB.name)}</div>
-                        <div className="font-broadcast text-lg uppercase text-white">{selectedTeamB.name}</div>
-                        <div className="text-[10px] text-white/44">{selectedTeamB.formation}</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                    <label>
-                      <span className="block text-[10px] uppercase text-white/45">Home side</span>
-                      <select data-testid="select-team-a" value={teamA} onChange={e => setTeamA(e.target.value)} className="tf-select">
-                        {TEAMS.map(t => <option key={t.id} value={t.id}>{t.name} ({t.formation})</option>)}
-                      </select>
-                    </label>
-
-                    <label>
-                      <span className="block text-[10px] uppercase text-white/45">Away side</span>
-                      <select data-testid="select-team-b" value={teamB} onChange={e => setTeamB(e.target.value)} className="tf-select">
-                        {TEAMS.filter(t => t.id !== teamA).map(t => <option key={t.id} value={t.id}>{t.name} ({t.formation})</option>)}
-                      </select>
-                    </label>
-
-                    <label>
-                      <span className="block text-[10px] uppercase text-white/45">Match scenario</span>
-                      <select data-testid="select-scenario" value={scenario} onChange={e => setScenario(e.target.value as SimulationScenario)} className="tf-select">
-                        <option value="default">Default Match</option>
-                        <option value="midfield-press">Midfield Press</option>
-                        <option value="wing-overload">Wing Overload</option>
-                        <option value="final-third">Final Third</option>
-                      </select>
-                    </label>
-
-                    <label>
-                      <span className="block text-[10px] uppercase text-white/45">Seed</span>
-                      <input data-testid="input-seed" value={seedText} onChange={e => setSeedText(e.target.value)} className="tf-input" inputMode="numeric" />
-                    </label>
-                  </div>
-
-                  <label className="mt-4 flex items-center justify-between tf-panel subtle">
-                    <span>Broadcast debug overlay</span>
-                    <input data-testid="toggle-debug" type="checkbox" checked={debugMode} onChange={e => setDebugMode(e.target.checked)} />
-                  </label>
-
-                  <div className="mt-5">
-                    <button data-testid="btn-kickoff" onClick={() => startMatch(teamA, teamB === teamA ? TEAMS.find(t => t.id !== teamA)?.id ?? "eng" : teamB)} className="tf-btn">Start Match</button>
+                  <div className="text-center text-2xl font-semibold text-amber-300">VS</div>
+                  <div className="text-right">
+                    <div className="text-[11px] uppercase tracking-[0.22em] text-white/40">Away</div>
+                    <div className="mt-1 text-lg font-medium text-white">{selectedTeamB.name}</div>
+                    <div className="text-xs text-white/45">{selectedTeamB.formation}</div>
                   </div>
                 </div>
-              </aside>
-            </main>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="space-y-1">
+                  <span className="block text-[11px] uppercase tracking-[0.22em] text-white/40">Home side</span>
+                  <select
+                    data-testid="select-team-a"
+                    value={teamA}
+                    onChange={e => setTeamA(e.target.value)}
+                    className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-3 text-sm text-white outline-none transition focus:border-amber-300/70 focus:ring-2 focus:ring-amber-300/20"
+                  >
+                    {TEAMS.map(t => <option key={t.id} value={t.id}>{t.name} ({t.formation})</option>)}
+                  </select>
+                </label>
+
+                <label className="space-y-1">
+                  <span className="block text-[11px] uppercase tracking-[0.22em] text-white/40">Away side</span>
+                  <select
+                    data-testid="select-team-b"
+                    value={teamB}
+                    onChange={e => setTeamB(e.target.value)}
+                    className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-3 text-sm text-white outline-none transition focus:border-amber-300/70 focus:ring-2 focus:ring-amber-300/20"
+                  >
+                    {TEAMS.filter(t => t.id !== teamA).map(t => <option key={t.id} value={t.id}>{t.name} ({t.formation})</option>)}
+                  </select>
+                </label>
+
+                <label className="space-y-1">
+                  <span className="block text-[11px] uppercase tracking-[0.22em] text-white/40">Match scenario</span>
+                  <select
+                    data-testid="select-scenario"
+                    value={scenario}
+                    onChange={e => setScenario(e.target.value as SimulationScenario)}
+                    className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-3 text-sm text-white outline-none transition focus:border-amber-300/70 focus:ring-2 focus:ring-amber-300/20"
+                  >
+                    <option value="default">Default Match</option>
+                    <option value="midfield-press">Midfield Press</option>
+                    <option value="wing-overload">Wing Overload</option>
+                    <option value="final-third">Final Third</option>
+                  </select>
+                </label>
+
+                <label className="space-y-1">
+                  <span className="block text-[11px] uppercase tracking-[0.22em] text-white/40">Seed</span>
+                  <input
+                    data-testid="input-seed"
+                    value={seedText}
+                    onChange={e => setSeedText(e.target.value)}
+                    className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-3 text-sm text-white outline-none transition focus:border-amber-300/70 focus:ring-2 focus:ring-amber-300/20"
+                    inputMode="numeric"
+                  />
+                </label>
+              </div>
+
+              <label className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/75">
+                <span>Broadcast debug overlay</span>
+                <input data-testid="toggle-debug" type="checkbox" checked={debugMode} onChange={e => setDebugMode(e.target.checked)} className="h-4 w-4 accent-amber-300" />
+              </label>
+
+              <button
+                data-testid="btn-kickoff"
+                onClick={() => startMatch(teamA, teamB === teamA ? TEAMS.find(t => t.id !== teamA)?.id ?? "eng" : teamB)}
+                className="w-full rounded-2xl bg-amber-300 px-4 py-4 text-sm font-semibold uppercase tracking-[0.28em] text-slate-950 transition hover:bg-amber-200"
+              >
+                Start Match
+              </button>
+            </div>
           </div>
+        </div>
         </div>
       )}
 
       {isRunning && ds && (
         <>
-          <div className="absolute left-1/2 top-5 z-10 -translate-x-1/2 text-center">
-            <div className="font-broadcast text-xl font-bold uppercase tracking-[0.35em] text-white/90">
-              TF 27 Live
-            </div>
-            <div className="mt-2 flex items-center justify-center gap-3">
-              <div className="flex min-w-[154px] items-center justify-end gap-2 text-right">
+          <div className="absolute left-1/2 top-4 z-10 w-[min(100%-1rem,760px)] -translate-x-1/2 rounded-full border border-white/10 bg-black/45 px-4 py-3 backdrop-blur-md">
+            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-sm">
+              <div className="flex items-center justify-end gap-3 text-right">
                 <div>
-                  <div className="font-broadcast text-sm font-bold uppercase tracking-normal" style={{ color: teamTone(ds.teamAColor) }}>
+                  <div className="font-medium text-white" style={{ color: teamTone(ds.teamAColor) }}>
                     {ds.teamAName}
                   </div>
-                  <div className="text-[10px] uppercase text-white/35">
+                  <div className="text-[10px] uppercase tracking-[0.22em] text-white/40">
                     {teams?.[0]?.phase ? phaseBadge(teams[0].phase) : ""}
                   </div>
                 </div>
-                <span className="h-4 w-4 rounded-full border border-white/35" style={{ background: teamTone(ds.teamAColor) }} />
+                <span className="h-3.5 w-3.5 rounded-full border border-white/30" style={{ background: teamTone(ds.teamAColor) }} />
               </div>
 
-              <div className="min-w-[112px] border-x border-white/10 px-4">
-                <div className="font-broadcast text-3xl font-bold leading-none tracking-normal text-white" data-testid="score-display">
+              <div className="min-w-[120px] text-center">
+                <div className="text-3xl font-semibold leading-none text-white" data-testid="score-display">
                   {ds.score[0]}:{ds.score[1]}
                 </div>
-                <div className="mt-1 text-[10px] uppercase text-white/45" data-testid="match-clock">
+                <div className="mt-1 text-[10px] uppercase tracking-[0.3em] text-white/45" data-testid="match-clock">
                   {formatClock(ds.clock)}
                 </div>
               </div>
 
-              <div className="flex min-w-[154px] items-center gap-2 text-left">
-                <span className="h-4 w-4 rounded-full border border-white/35" style={{ background: teamTone(ds.teamBColor) }} />
+              <div className="flex items-center gap-3 text-left">
+                <span className="h-3.5 w-3.5 rounded-full border border-white/30" style={{ background: teamTone(ds.teamBColor) }} />
                 <div>
-                  <div className="font-broadcast text-sm font-bold uppercase tracking-normal" style={{ color: teamTone(ds.teamBColor) }}>
+                  <div className="font-medium text-white" style={{ color: teamTone(ds.teamBColor) }}>
                     {ds.teamBName}
                   </div>
-                  <div className="text-[10px] uppercase text-white/35">
+                  <div className="text-[10px] uppercase tracking-[0.22em] text-white/40">
                     {teams?.[1]?.phase ? phaseBadge(teams[1].phase) : ""}
                   </div>
                 </div>
@@ -725,12 +727,9 @@ export default function MatchSimulator() {
             </div>
           </div>
 
-          <LineupRail side="left" team={teams?.[0]} players={homePlayers} />
-          <LineupRail side="right" team={teams?.[1]} players={awayPlayers} />
-
           {debugMode && debugFrame && (
-            <div className="absolute right-6 top-[92px] z-10 hidden w-[260px] border border-sky-200/20 bg-black/45 p-3 text-[10px] text-white/62 lg:block">
-              <div className="mb-2 flex items-center justify-between font-broadcast text-xs font-bold uppercase text-sky-100">
+            <div className="absolute right-6 top-[92px] z-10 hidden w-[260px] rounded-2xl border border-sky-200/20 bg-black/45 p-3 text-[10px] text-white/62 lg:block">
+              <div className="mb-2 flex items-center justify-between text-xs font-semibold uppercase text-sky-100">
                 <span>Debug Harness</span>
                 <span>Seed {debugFrame.seed ?? "random"}</span>
               </div>
@@ -757,8 +756,8 @@ export default function MatchSimulator() {
           )}
 
           {bigEvent && (
-            <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 w-[360px] max-w-[70vw] -translate-x-1/2 -translate-y-1/2 border border-white/70 bg-black/82 px-8 py-6 text-center shadow-2xl">
-              <div className="font-broadcast text-4xl font-bold uppercase tracking-normal text-white">
+            <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 w-[360px] max-w-[70vw] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-white/15 bg-[#0f1622]/95 px-8 py-6 text-center shadow-2xl">
+              <div className="text-3xl font-semibold uppercase tracking-tight text-white">
                 {bigEvent}
               </div>
               <div className="mt-2 text-xs text-white/65">
@@ -767,7 +766,7 @@ export default function MatchSimulator() {
             </div>
           )}
 
-          <div className="absolute bottom-7 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2">
+          <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/10 bg-black/45 px-2 py-2 backdrop-blur-md">
             {[1, 2, 4].map(s => {
               const active = (simRef.current?.state.speed ?? 1) === s;
               return (
@@ -775,8 +774,7 @@ export default function MatchSimulator() {
                   key={s}
                   data-testid={`btn-speed-${s}x`}
                   onClick={() => setSpeed(s)}
-                  className={active ? "bg-sky-200 text-[#080b14]" : "bg-white/8 text-white/65"}
-                  style={{ border: "1px solid rgba(255,255,255,0.12)", padding: "6px 12px", fontSize: 12 }}
+                  className={active ? "rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-950" : "rounded-full px-4 py-2 text-sm text-white/70 hover:bg-white/10"}
                 >
                   {s}x
                 </button>
@@ -785,30 +783,30 @@ export default function MatchSimulator() {
             <button
               data-testid="btn-pause"
               onClick={() => setPaused(p => !p)}
-              className="border border-white/10 bg-white/8 px-3 py-1.5 text-xs text-white/70"
+              className="rounded-full px-4 py-2 text-sm text-white/70 hover:bg-white/10"
             >
               {paused ? "Resume" : "Pause"}
             </button>
             <button
               data-testid="btn-new-match"
-              onClick={() => { setIsRunning(false); setPaused(false); setDebugFrame(null); setDebugJson(""); setIntroVisible(false); }}
-              className="border border-white/10 bg-white/8 px-3 py-1.5 text-xs text-white/70"
+              onClick={() => { setIsRunning(false); setPaused(false); setDebugFrame(null); setDebugJson(""); setIntroVisible(true); setIntroFading(false); }}
+              className="rounded-full px-4 py-2 text-sm text-white/70 hover:bg-white/10"
             >
               Return to Select
             </button>
           </div>
 
-          <div className="absolute bottom-7 left-6 z-10 hidden w-[260px] space-y-1.5 lg:block">
+          <div className="absolute bottom-6 left-6 z-10 hidden w-[260px] space-y-1.5 lg:block">
             {ds.recentEvents.slice(0, 4).map((ev, i) => {
               const team = teams?.find(t => t.id === ev.teamId);
               return (
                 <div
                   key={ev.id}
-                  className="flex items-center gap-2 border border-white/7 bg-black/35 px-2.5 py-1.5 text-[10px] text-white/58"
+                  className="flex items-center gap-2 rounded-2xl border border-white/8 bg-black/35 px-2.5 py-1.5 text-[10px] text-white/58 backdrop-blur-sm"
                   style={{ opacity: 1 - i * 0.18 }}
                 >
                   <span className="h-1.5 w-1.5 rounded-full" style={{ background: team ? teamTone(team.color) : "#ffffff" }} />
-                  <span className="font-broadcast text-xs font-bold text-white/76">{ev.type}</span>
+                  <span className="text-xs font-semibold text-white/76">{ev.type}</span>
                   <span className="truncate">{ev.message}</span>
                 </div>
               );
@@ -817,13 +815,13 @@ export default function MatchSimulator() {
 
           {ds.matchOver && (
             <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/60">
-              <div className="border border-white/15 bg-[#0b101d]/95 px-10 py-8 text-center shadow-2xl">
-                <div className="font-broadcast text-3xl font-bold uppercase tracking-[0.35em] text-white">Final Whistle</div>
-                <div className="my-3 font-broadcast text-5xl font-bold text-white">{ds.score[0]}:{ds.score[1]}</div>
+              <div className="rounded-3xl border border-white/15 bg-[#0b101d]/95 px-10 py-8 text-center shadow-2xl">
+                <div className="text-3xl font-semibold uppercase tracking-[0.22em] text-white">Final Whistle</div>
+                <div className="my-3 text-5xl font-semibold text-white">{ds.score[0]}:{ds.score[1]}</div>
                 <button
                   data-testid="btn-new-match-fulltime"
-                  onClick={() => { setIsRunning(false); setPaused(false); setIntroVisible(false); }}
-                  className="mt-2 bg-white px-5 py-2 font-broadcast text-sm font-bold uppercase text-[#080b14]"
+                  onClick={() => { setIsRunning(false); setPaused(false); setIntroVisible(true); setIntroFading(false); }}
+                  className="mt-2 rounded-full bg-white px-5 py-2 text-sm font-semibold uppercase text-[#080b14]"
                 >
                   Return to Select
                 </button>

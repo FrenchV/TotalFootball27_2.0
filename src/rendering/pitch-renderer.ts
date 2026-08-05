@@ -47,13 +47,13 @@ export function drawPitch(
   ctx.save();
 
   // ── Background ──────────────────────────────────────────────────────────
-  ctx.fillStyle = "#080b14";
+  ctx.fillStyle = "#07120b";
   ctx.fillRect(0, 0, cw, ch);
 
   const bg = ctx.createLinearGradient(0, 0, cw, ch);
-  bg.addColorStop(0, "rgba(38,42,68,0.42)");
-  bg.addColorStop(0.45, "rgba(12,15,28,0.22)");
-  bg.addColorStop(1, "rgba(20,16,36,0.50)");
+  bg.addColorStop(0, "rgba(23, 58, 34, 0.35)");
+  bg.addColorStop(0.45, "rgba(8, 22, 13, 0.18)");
+  bg.addColorStop(1, "rgba(10, 30, 18, 0.42)");
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, cw, ch);
 
@@ -63,18 +63,18 @@ export function drawPitch(
   const pitchW = px1 - px0;
   const pitchH = py1 - py0;
 
-  ctx.shadowColor = "rgba(0,0,0,0.65)";
-  ctx.shadowBlur = 28;
-  ctx.shadowOffsetY = 12;
-  ctx.fillStyle = "#11151f";
+  ctx.shadowColor = "rgba(0,0,0,0.42)";
+  ctx.shadowBlur = 18;
+  ctx.shadowOffsetY = 8;
+  ctx.fillStyle = "#0b1d12";
   ctx.fillRect(px0 - 10, py0 - 10, pitchW + 20, pitchH + 20);
   ctx.shadowBlur = 0;
   ctx.shadowOffsetY = 0;
 
   const grass = ctx.createLinearGradient(px0, py0, px1, py1);
-  grass.addColorStop(0, "#0e1820");
-  grass.addColorStop(0.5, "#141d25");
-  grass.addColorStop(1, "#0b121b");
+  grass.addColorStop(0, "#1f7a3d");
+  grass.addColorStop(0.5, "#186935");
+  grass.addColorStop(1, "#13552b");
   ctx.fillStyle = grass;
   ctx.fillRect(px0, py0, pitchW, pitchH);
 
@@ -83,14 +83,14 @@ export function drawPitch(
   const stripeW = pitchW / stripes;
   for (let i = 0; i < stripes; i++) {
     ctx.fillStyle = i % 2 === 0
-      ? "rgba(0,0,0,0.16)"
-      : "rgba(255,255,255,0.025)";
+      ? "rgba(0,0,0,0.11)"
+      : "rgba(255,255,255,0.035)";
     ctx.fillRect(px0 + i * stripeW, py0, stripeW, pitchH);
   }
 
   for (let i = 0; i < 9; i++) {
     const x = px0 + (pitchW / 8) * i;
-    ctx.strokeStyle = "rgba(255,255,255,0.025)";
+    ctx.strokeStyle = "rgba(255,255,255,0.02)";
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(x, py0);
@@ -99,7 +99,7 @@ export function drawPitch(
   }
 
   // ── Line style ──────────────────────────────────────────────────────────
-  ctx.strokeStyle = "rgba(220,235,255,0.36)";
+  ctx.strokeStyle = "rgba(245,250,245,0.72)";
   ctx.lineWidth = Math.max(1, scale(0.16, cam));
 
   // ── Pitch outline ────────────────────────────────────────────────────────
@@ -119,7 +119,7 @@ export function drawPitch(
   ctx.stroke();
 
   // ── Center spot ──────────────────────────────────────────────────────────
-  ctx.fillStyle = "rgba(220,235,255,0.42)";
+  ctx.fillStyle = "rgba(245,250,245,0.72)";
   ctx.beginPath();
   ctx.arc(cx, cy, scale(0.45, cam), 0, Math.PI * 2);
   ctx.fill();
@@ -193,7 +193,7 @@ export function drawPitch(
   const goalH = gY1 - gY0;
   const goalDepth = scale(2.44, cam);
 
-  ctx.strokeStyle = "rgba(220,235,255,0.48)";
+  ctx.strokeStyle = "rgba(245,250,245,0.68)";
   ctx.lineWidth = Math.max(1, scale(0.16, cam));
 
   // Left goal (extends to the left of pitch)
@@ -208,7 +208,7 @@ export function drawPitch(
   ctx.fillRect(px1, gY0, goalDepth, goalH);
 
   // ── Corner arcs ───────────────────────────────────────────────────────────
-  ctx.strokeStyle = "rgba(220,235,255,0.36)";
+  ctx.strokeStyle = "rgba(245,250,245,0.68)";
   ctx.lineWidth = Math.max(1, scale(0.16, cam));
   const cornerR = scale(1, cam);
   const corners: [number, number, number, number][] = [
@@ -230,11 +230,11 @@ export function drawPitch(
     cw / 2, ch / 2, Math.max(cw, ch) * 0.8
   );
   vg.addColorStop(0, "transparent");
-  vg.addColorStop(1, "rgba(0,0,0,0.50)");
+  vg.addColorStop(1, "rgba(0,0,0,0.42)");
   ctx.fillStyle = vg;
   ctx.fillRect(0, 0, cw, ch);
 
-  ctx.strokeStyle = "rgba(255,255,255,0.10)";
+  ctx.strokeStyle = "rgba(255,255,255,0.08)";
   ctx.lineWidth = 1;
   ctx.strokeRect(px0 - 10, py0 - 10, pitchW + 20, pitchH + 20);
 
